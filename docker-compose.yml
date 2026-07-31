@@ -6,9 +6,7 @@ services:
     environment:
       POSTGRES_DB: embaixador
       POSTGRES_USER: embaixador
-      POSTGRES_PASSWORD: change-me
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./sql/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro

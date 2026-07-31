@@ -1,6 +1,11 @@
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function stripBotMention(content: string, botId: string): string {
+  const escaped = escapeRegExp(botId);
   return content
-    .replace(new RegExp(`<@!?${botId}>`, "g"), " ")
+    .replace(new RegExp(`<@!?${escaped}>`, "g"), " ")
     .replace(/\s+/g, " ")
     .trim();
 }
