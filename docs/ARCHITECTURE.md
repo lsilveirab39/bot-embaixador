@@ -1,5 +1,7 @@
 # Arquitetura
 
+**Autor:** Leandro S. Barbosa — leandro.silveirabarbosa@gmail.com
+
 ```mermaid
 flowchart LR
     U[Aluno no Discord] --> T{Menção ou resposta ao bot?}
@@ -100,9 +102,17 @@ Guarda opcional via modelo `openai/gpt-oss-safeguard-20b` no OpenRouter:
 
 Configurável via `ENABLE_LLM_GUARD=true/false` (default: `false`) e `LLM_GUARD_MODEL` (default: `openai/gpt-oss-safeguard-20b`).
 
-## Pseudonimização
+### Pseudonimização
 
 Todos os IDs de usuário armazenados em banco (`userId`, `channelId`, `guildId`, `sourceMessageId`) são pseudonimizados via SHA-256 truncado para 16 caracteres hex (`src/utils/crypto.ts`). A transformação é aplicada nas camadas de repositório antes de qualquer consulta ou inserção, garantindo privacidade mesmo em caso de vazamento do banco.
+
+### Health Server (`src/health/server.ts`)
+
+O servidor HTTP de health checks implementa:
+
+- **HTTP Method Check**: aceita apenas requisições `GET`. Outros métodos retornam `405 Method Not Allowed`.
+- **Security Headers**: todas as respostas incluem `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`, `Referrer-Policy: strict-origin-when-cross-origin` e `Permissions-Policy: camera=(), microphone=(), geolocation=()`.
+- **Informação Limitada**: expõe apenas status do Discord e PostgreSQL. Nenhum dado sensível é retornado.
 
 ## Camadas de Dados
 
@@ -114,3 +124,4 @@ Todos os IDs de usuário armazenados em banco (`userId`, `channelId`, `guildId`,
 | Embeddings | OpenRouter (text-embedding-3-small) | Vetorização de texto |
 | Banco Vetorial | PostgreSQL + pgvector | Similaridade semântica |
 | Cache/Banco | PostgreSQL | Histórico, preferências, soluções |
+| Health Server | Node.js HTTP | Health checks com security headers |

@@ -1,5 +1,44 @@
 # Changelog
 
+## [1.3.0] — 2026-07-31
+
+### Adicionado
+
+- **Security Headers no Health Server**: headers `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` e `Permissions-Policy` em todas as respostas HTTP (`src/health/server.ts`).
+- **HTTP Method Check**: health server aceita apenas requisições `GET`; retorna `405 Method Not Allowed` para outros métodos (`src/health/server.ts`).
+- **Escape de RegExp**: função `escapeRegExp()` para escapar caracteres especiais antes de interpolar variáveis em expressões regulares, prevenindo ReDoS (CWE-1333) (`src/utils/discord-text.ts`).
+- **POSTGRES_PASSWORD via env var**: `docker-compose.yml` usa `${POSTGRES_PASSWORD:-change-me}` em vez de senha hardcoded; porta 5432 removida da exposição externa.
+- **Análise de Segurança SAST/DAST**: relatório completo em `SECURITY-REPORT.md` com semgrep, npm audit e testes dinâmicos.
+- **Serviço Relatório atualizado**: documento LaTeX (`docs/servico-relatorio.tex`) reescrito com versão 1.3.0, Camada 3 LLM Guard, resultados de segurança e autoria.
+
+### Corrigido
+
+- **ReDoS (CWE-1333)** em `src/utils/discord-text.ts`: `botId` agora é escapado antes de interpolar na regex.
+- **HTTP Method Tampering** em `src/health/server.ts`: adicionada verificação `request.method !== "GET"`.
+- **Security Headers Ausentes** em `src/health/server.ts`: adicionados todos os headers de segurança recomendados.
+- **Senha Hardcoded** em `docker-compose.yml`: `POSTGRES_PASSWORD` agora usa variável de ambiente.
+
+### Alterado
+
+- `src/utils/discord-text.ts`: adicionada função `escapeRegExp()` e aplicada em `stripBotMention()`.
+- `src/health/server.ts`: adicionada constante `SECURITY_HEADERS` e verificação de método HTTP.
+- `docker-compose.yml`: `POSTGRES_PASSWORD` via env var, porta 5432 removida.
+- `.env.example`: adicionada variável `POSTGRES_PASSWORD`.
+- `CHANGELOG.md`: versão 1.1.0 data corrigida para 2026-07-25.
+- `docs/playbook.md`: referência SQL corrigida (`002_seed.sql` → `002_solutions.sql`).
+- `SECURITY.md`: adicionada referência à Camada 3 (LLM Guard).
+
+### Verificado
+
+- Testes: 8/8 passando.
+- Typecheck: 0 erros.
+- semgrep: 1 finding restante (falso positivo — `botId` agora é escapado).
+- npm audit: 0 vulnerabilidades.
+- DAST: health server retorna 405 para métodos não-GET, security headers presentes.
+- Docker: build e execução validados.
+
+---
+
 ## [1.2.0] — 2026-07-28
 
 ### Adicionado

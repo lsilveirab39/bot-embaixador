@@ -10,9 +10,14 @@ Projeto Node.js/TypeScript para um bot educacional no Discord com:
 - preferências explícitas por aluno;
 - histórico curto isolado por usuário e canal;
 - resposta somente quando o aluno menciona o bot ou responde a uma mensagem dele;
-- slash commands de preferências, perfil e exclusão de dados.
+- slash commands de preferências, perfil, exclusão de dados e registro de soluções;
+- detecção de prompt injection em 3 camadas;
+- pseudonimização de IDs armazenados (SHA-256).
 
-> O nome “Embaixador” descreve a função educacional. O bot não deve se apresentar como canal oficial da UNIPDS/Anhanguera sem autorização formal.
+> O nome "Embaixador" descreve a função educacional. O bot não deve se apresentar como canal oficial da UNIPDS/Anhanguera sem autorização formal.
+
+**Autor:** Leandro S. Barbosa — Aluno da Pós-Graduação em Engenharia de Software com IA Aplicada (UNIPDS/Anhanguera)
+**Contato:** leandro.silveirabarbosa@gmail.com
 
 ## 1. Pré-requisitos
 
@@ -70,7 +75,8 @@ Comandos:
 
 - `/preferencias`: nível, estilo, linguagem preferida e objetivo;
 - `/perfil`: exibe as preferências;
-- `/esquecer`: apaga preferências e histórico.
+- `/esquecer`: apaga preferências e histórico;
+- `/resolver`: salva a última resposta como solução na base de conhecimento.
 
 ## 5. Ingestão do RAG
 
@@ -103,6 +109,8 @@ Health checks:
 - `GET /health`: processo ativo;
 - `GET /ready`: Discord e PostgreSQL prontos.
 
+Os health checks retornam security headers (`X-Content-Type-Options`, `X-Frame-Options`, etc.) e aceitam apenas requisições `GET` (outros métodos retornam `405`).
+
 ## 7. Uso no Discord
 
 O bot ignora conversas comuns. Ele responde quando:
@@ -134,18 +142,35 @@ LANGSMITH_PROJECT=unipds-ai-embaixador
 
 As execuções do LangGraph e as chamadas LangChain ficam associadas ao projeto. Para produção, crie datasets de avaliação com perguntas reais anonimizadas e critérios como fidelidade às fontes, correção técnica, utilidade e segurança.
 
-## 9. Decisões de segurança
+## 9. Segurança
+
+O bot implementa **defesa em profundidade** com múltiplas camadas:
+
+### Detecção de Prompt Injection (3 camadas)
+
+| Camada | Tipo | Custo | Configuração |
+|--------|------|-------|--------------|
+| Camada 1 | Prompt reforçado (in-prompt) | Zero | Sempre ativo |
+| Camada 2 | Input guard (regex) | Zero | `ENABLE_INPUT_GUARD=true` (default) |
+| Camada 3 | LLM guard (gpt-oss-safeguard-20b) | ~$0.00014/chamada | `ENABLE_LLM_GUARD=true` (default: `false`) |
+
+### Controles de Infraestrutura
 
 - allowlist opcional de servidores e canais;
-- limite por usuário e por minuto;
-- limite de caracteres e tokens;
-- segredos apenas por variáveis de ambiente;
-- política `data_collection` do OpenRouter configurável via `OPENROUTER_DENY_DATA_COLLECTION` (verifique a política de privacidade de cada modelo/provedor);
+- rate limit de 8 requisições/minuto por usuário;
+- limite de 6000 caracteres na entrada e 1400 tokens na saída;
+- segredos apenas por variáveis de ambiente (nunca hardcoded);
+- política `data_collection` do OpenRouter configurável via `OPENROUTER_DENY_DATA_COLLECTION`;
 - contexto recuperado tratado como conteúdo não confiável;
 - separação do histórico por usuário e canal;
-- exclusão de dados pelo próprio aluno;
-- nenhuma ação administrativa delegada ao LLM;
-- logs escritos em arquivo (`bot.log`) para evitar buffering de stdout;
-- detecção de menção por cargo: o bot responde quando um cargo com o mesmo nome do bot é mencionado.
+- exclusão de dados pelo próprio aluno (`/esquecer`);
+- pseudonimização de IDs com SHA-256 truncado (16 hex);
+- security headers no health server (`X-Content-Type-Options`, `X-Frame-Options`, etc.);
+- HTTP method check no health server (aceita apenas `GET`);
+- logs estruturados com redação automática de tokens e chaves.
 
-Consulte `SECURITY.md` e `docs/ARCHITECTURE.md`.
+Consulte `SECURITY.md`, `SECURITY-REPORT.md` e `docs/ARCHITECTURE.md`.
+
+---
+
+**Repositório:** https://github.com/lsilveirab39/bot-embaixador

@@ -2,6 +2,8 @@
 
 > Bot educacional no Discord com RAG, LangGraph e OpenRouter.
 
+**Autor:** Leandro S. Barbosa — leandro.silveirabarbosa@gmail.com
+
 ---
 
 ## Sumário
@@ -121,6 +123,8 @@ npm start
 |----------|-----------|
 | `GET /health` | Retorna `200` se o processo está ativo |
 | `GET /ready` | Retorna `200` se Discord conectado e PostgreSQL acessível |
+
+Os health checks retornam security headers (`X-Content-Type-Options`, `X-Frame-Options`, etc.) e aceitam apenas requisições `GET` (outros métodos retornam `405`).
 
 ---
 
@@ -259,6 +263,9 @@ Guarda via modelo `openai/gpt-oss-safeguard-20b` no OpenRouter. Policy prompt de
 | Pseudonimização | IDs armazenados como SHA-256 truncado (16 hex) via `src/utils/crypto.ts` |
 | Exclusão de dados | Comando `/esquecer` apaga preferências + histórico |
 | Logs sem secrets | Pino redacta campos `token`, `apiKey`, `authorization` |
+| Security headers | `X-Content-Type-Options`, `X-Frame-Options`, etc. no health server |
+| HTTP method check | Health server aceita apenas `GET` (405 para outros métodos) |
+| Escape de RegExp | `escapeRegExp()` previne ReDoS em interpolação de variáveis |
 
 ---
 
@@ -501,6 +508,7 @@ Resposta inclui código de exemplo, explicação passo a passo e referências ao
 
 | Variável | Obrigatório | Default | Descrição |
 |----------|-------------|---------|-----------|
+| `POSTGRES_PASSWORD` | Não | `change-me` | Senha do PostgreSQL (usada pelo Docker Compose) |
 | `DATABASE_URL` | Sim | — | URL de conexão (ex: `postgresql://user:pass@host:5432/db`) |
 | `DATABASE_SSL` | Não | `false` | Habilita SSL na conexão |
 
