@@ -421,6 +421,9 @@ Guarda via modelo `openai/gpt-oss-safeguard-20b` no OpenRouter. Policy prompt de
 
 | Comando | Descrição | Opções |
 |---------|-----------|--------|
+| `/help` | Lista todos os comandos disponíveis e como usá-los | — |
+| `/uptime` | Mostra o tempo que o bot está ativo | — |
+| `/static` | Exibe estatísticas de uso e performance | `escopo` (usuario/geral) |
 | `/preferencias` | Personaliza respostas | `idioma`, `nivel` (iniciante/intermediario/avancado), `estilo` (direto/didatico/socratico), `linguagem`, `objetivo` |
 | `/perfil` | Mostra preferências atuais | — |
 | `/esquecer` | Apaga dados salvos | — |
@@ -757,7 +760,8 @@ Resposta inclui código de exemplo, explicação passo a passo e referências ao
 │   │   └── domain.ts         # Typescript types/interfaces
 │   └── utils/
 │       ├── crypto.ts         # Pseudonimização SHA-256 (16 hex)
-│       └── discord-text.ts   # Utilitários de texto (strip mention, split)
+│       ├── discord-text.ts   # Utilitários de texto (strip mention, split)
+│       └── stats.ts          # Estatísticas de uso e performance do bot
 ├── tests/                    # Testes automatizados
 ├── docker-compose.yml        # PostgreSQL + bot
 ├── Dockerfile                # Build do bot

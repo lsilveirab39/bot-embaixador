@@ -2,6 +2,24 @@ import { SlashCommandBuilder } from "discord.js";
 
 export const commandDefinitions = [
   new SlashCommandBuilder()
+    .setName("help")
+    .setDescription("Lista todos os comandos disponíveis e como usá-los"),
+  new SlashCommandBuilder()
+    .setName("uptime")
+    .setDescription("Mostra o tempo que o bot está ativo"),
+  new SlashCommandBuilder()
+    .setName("static")
+    .setDescription("Exibe estatísticas de uso e performance do bot")
+    .addStringOption((option) =>
+      option
+        .setName("escopo")
+        .setDescription("Tipo de estatísticas a exibir")
+        .addChoices(
+          { name: "Minhas estatísticas", value: "usuario" },
+          { name: "Estatísticas gerais do bot", value: "geral" },
+        ),
+    ),
+  new SlashCommandBuilder()
     .setName("preferencias")
     .setDescription("Personaliza como o embaixador explica os conteúdos")
     .addStringOption((option) =>
@@ -49,3 +67,4 @@ export const commandDefinitions = [
     .setName("resolver")
     .setDescription("Marca a última resposta como solução e salva na base de conhecimento"),
 ].map((command) => command.toJSON());
+

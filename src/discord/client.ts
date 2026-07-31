@@ -21,6 +21,7 @@ import { checkWithGuardLLM } from "../security/safeguard-llm.js";
 import type { AnswerSource } from "../types/domain.js";
 import { pseudonymize } from "../utils/crypto.js";
 import { splitDiscordMessage, stripBotMention } from "../utils/discord-text.js";
+import { incrementMessagesReceived, incrementMessagesResponded, recordQuestion, recordResponse } from "../utils/stats.js";
 import { handleInteraction } from "./interactions.js";
 import { shouldRespond } from "./triggers.js";
 
@@ -125,6 +126,8 @@ export function createDiscordClient(): Client {
     const botUser = client.user;
     if (!botUser) return;
 
+    incrementMessagesReceived();
+
     const isDm = message.channel.type === ChannelType.DM;
     const mentionedBotUser = message.mentions.users.has(botUser.id);
     const botNames = [
@@ -226,6 +229,7 @@ export function createDiscordClient(): Client {
 
     try {
       await message.channel.sendTyping();
+      const startTime = Date.now();
       const result = await embaixadorGraph.invoke(
         {
           question,
@@ -243,6 +247,10 @@ export function createDiscordClient(): Client {
           },
         },
       );
+      const duration = Date.now() - startTime;
+      recordResponse(duration);
+      recordQuestion(message.author.id);
+      incrementMessagesResponded();
 
       await saveConversationTurn({
         userId: message.author.id,
