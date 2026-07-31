@@ -84,15 +84,161 @@ npm run db:init
 npm run discord:register
 ```
 
-### Configuração do Discord Developer Portal
+### Configuração do Discord Developer Portal (Passo a Passo)
 
-1. Crie uma aplicação em https://discord.com/developers/applications
-2. Vá em **Bot** → crie o bot, copie o **Token**
-3. Habilite **Message Content Intent** (necessário para reply trigger)
-4. Vá em **OAuth2 → URL Generator**:
-   - Escopos: `bot`, `applications.commands`
-   - Permissões: `View Channels`, `Send Messages`, `Read Message History`, `Use Application Commands`
-5. Use a URL gerada para convidar o bot ao seu servidor
+#### Passo 1 — Criar a Aplicação
+
+1. Acesse o [Discord Developer Portal](https://discord.com/developers/applications).
+2. Faça login com sua conta Discord.
+3. Clique no botão **"New Application"** (canto superior direito).
+4. Digite o nome do bot (ex: `Embaixador` ou `AskLeo`).
+5. Aceite os Termos de Serviço e clique em **"Create"**.
+
+#### Passo 2 — Criar o Bot e Copiar o Token
+
+1. No menu lateral, clique em **"Bot"**.
+2. Clique em **"Add Bot"** e confirme com **"Yes, do it!"**.
+3. Na seção **"Token"**, clique em **"Copy"** para copiar o token.
+4. **Guarde este token em local seguro!** Ele não será exibido novamente.
+5. (Opcional) Desabilite **"Public Bot"** se quiser que apenas você possa convidar o bot.
+
+#### Passo 3 — Habilitar Message Content Intent
+
+1. Na mesma página **"Role"**, role para baixo até **"Privileged Gateway Intents"**.
+2. Habilite a opção **"Message Content Intent"**.
+3. Clique em **"Save Changes"**.
+
+> **Por que isso é necessário?** Sem este intent, o bot não consegue ler o conteúdo das mensagens, apenas quando é mencionado diretamente. Para usar o reply trigger (`ENABLE_REPLY_TRIGGER=true`), este intent é obrigatório.
+
+#### Passo 4 — Copiar o Client ID
+
+1. No menu lateral, clique em **"OAuth2"**.
+2. Na seção **"Client Information"**, copie o **"Client ID"**.
+3. Anote este ID para usar no `.env` como `DISCORD_CLIENT_ID`.
+
+#### Passo 5 — Gerar a URL de Convite do Bot
+
+1. No menu lateral, vá em **"OAuth2" → "URL Generator"**.
+2. Na seção **"SCOPES"**, marque:
+   - ✅ `bot`
+   - ✅ `applications.commands`
+3. Na seção **"BOT PERMISSIONS"**, marque:
+   - ✅ `View Channels`
+   - ✅ `Send Messages`
+   - ✅ `Read Message History`
+   - ✅ `Use Application Commands`
+4. Copie a URL gerada na seção **"Generated URL"** (embaixo da página).
+
+#### Passo 6 — Convidar o Bot para o Servidor
+
+1. Cole a URL copiada no navegador e pressione Enter.
+2. No dropdown **"Add to Server"**, selecione o servidor de destino.
+3. Clique em **"Continuar"** e depois em **"Autorizar"**.
+4. O bot aparecerá na lista de membros do servidor (com status offline até ser iniciado).
+
+#### Passo 7 — Obter o Guild ID (para Registro Rápido)
+
+1. No Discord, vá em **"Configurações do Usuário"** (engrenagem ao lado do seu nome).
+2. No menu lateral, clique em **"Avançado"**.
+3. Habilite **"Modo Desenvolvedor"**.
+4. Volte ao servidor e clique com o botão direito no nome do servidor.
+5. Selecione **"Copiar ID do Servidor"**.
+6. Anote este ID para usar no `.env` como `DISCORD_GUILD_ID`.
+
+> **Dica:** O `DISCORD_GUILD_ID` permite que os slash commands sejam registrados instantaneamente no servidor (em vez de aguardar até 1 hora para propagação global). É altamente recomendado para desenvolvimento.
+
+#### Passo 8 — Obter IDs de Canais (Opcional)
+
+Para restringir o bot a canais específicos:
+
+1. No Discord, clique com o botão direito em um canal.
+2. Selecione **"Copiar ID do Canal"**.
+3. Adicione os IDs separados por vírgula no `.env`:
+   ```
+   ALLOWED_CHANNEL_IDS=1234567890,9876543210
+   ```
+4. Se deixar vazio, o bot responderá em todos os canais permitidos.
+
+#### Passo 9 — Obter IDs de Servidores (Opcional)
+
+Para restringir o bot a servidores específicos:
+
+1. Copie o ID do servidor (conforme o Passo 7).
+2. Adicione os IDs separados por vírgula no `.env`:
+   ```
+   ALLOWED_GUILD_IDS=1234567890,9876543210
+   ```
+3. Se deixar vazio, o bot funcionará em todos os servidores onde estiver instalado.
+
+#### Passo 10 — Configurar o Arquivo .env
+
+Copie o `.env.example` para `.env` e preencha:
+
+```bash
+cp .env.example .env
+```
+
+Preencha pelo menos as variáveis obrigatórias:
+
+```env
+# Obrigatórias
+DISCORD_TOKEN=seu_token_aqui
+DISCORD_CLIENT_ID=seu_client_id_aqui
+
+# Recomendado para desenvolvimento
+DISCORD_GUILD_ID=seu_guild_id_aqui
+
+# Opcional: restrições
+ALLOWED_GUILD_IDS=
+ALLOWED_CHANNEL_IDS=
+
+# Opcional: comportamento
+ENABLE_REPLY_TRIGGER=true
+ENABLE_DIRECT_MESSAGES=false
+```
+
+#### Passo 11 — Registrar os Slash Commands
+
+Execute o script de registro:
+
+```bash
+# Com DISCORD_GUILD_ID definido (registro rápido, ~instantâneo)
+npm run discord:register
+
+# Sem DISCORD_GUILD_ID (registro global, pode levar até 1 hora)
+npm run discord:register
+```
+
+**Comandos registrados:**
+
+| Comando | Descrição | Opções |
+|---------|-----------|--------|
+| `/preferencias` | Personaliza respostas | `idioma`, `nivel`, `estilo`, `linguagem`, `objetivo` |
+| `/perfil` | Mostra preferências atuais | — |
+| `/esquecer` | Apaga dados salvos | — |
+| `/resolver` | Salva última resposta como solução | — |
+
+#### Passo 12 — Verificar o Funcionamento
+
+1. Inicie o bot (`npm run dev` ou `docker compose up --build`).
+2. No Discord, mencione o bot: `@Embaixador O que é RAG?`
+3. O bot deve responder com uma explicação baseada no conteúdo do curso.
+4. Teste os slash commands: `/preferencias nivel: iniciante`
+
+### Checklist de Configuração
+
+| Item | Verificado? |
+|------|-------------|
+| Aplicação criada no Developer Portal | ☐ |
+| Bot criado e Token copiado | ☐ |
+| Message Content Intent habilitado | ☐ |
+| Client ID copiado | ☐ |
+| URL de convite gerada com permissões corretas | ☐ |
+| Bot convidado para o servidor | ☐ |
+| Guild ID copiado (para teste) | ☐ |
+| `.env` configurado com Token e Client ID | ☐ |
+| Slash commands registrados (`npm run discord:register`) | ☐ |
+| Bot respondendo a menções no Discord | ☐ |
 
 ---
 
