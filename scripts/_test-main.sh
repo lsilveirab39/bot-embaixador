@@ -1,0 +1,1 @@
+wget -q -O- --timeout=30 --header="Content-Type: application/json" --header="Authorization: Bearer $(printenv OPENROUTER_API_KEY)" --post-data='{"model":"google/gemini-2.5-flash","messages":[{"role":"user","content":"o que e python? responda em 1 frase"}],"temperature":0.2,"max_tokens":200}' https://openrouter.ai/api/v1/chat/completions

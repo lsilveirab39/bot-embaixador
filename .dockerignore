@@ -1,0 +1,11 @@
+node_modules
+dist
+.git
+.env
+*.log
+coverage
+.playwright-mcp
+*.aux
+*.out
+*.toc
+start-bot.vbs

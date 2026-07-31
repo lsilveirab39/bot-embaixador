@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+coverage/
+knowledge/private/
+
+# Playwright MCP logs (browser automation)
+.playwright-mcp/
+
+# LaTeX build artifacts
+*.aux
+*.out
+*.toc
+
+# Local scripts with hardcoded paths
+start-bot.vbs
