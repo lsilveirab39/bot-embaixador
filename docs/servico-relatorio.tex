@@ -457,27 +457,27 @@ O servidor de health checks (\texttt{src/health/server.ts}) implementa controles
 \begin{longtable}{>{\bfseries\color{primary}}l l X}
 \toprule
 \rowcolor{tableheader}
-\color{tableheadertext}\textbf{Controle} & \color{tableheadertext}\textbf{Configuração} & \color{tableheadertext}\textbf{Descrição} \\
+\color{tableheadertext}\textbf{Controle} & \color{tableheadertext}\textbf{Configura\c{c}\~ao} & \color{tableheadertext}\textbf{Descri\c{c}\~ao} \\
 \midrule
 \endhead
 \rowcolor{tableroweven}
-Rate limit & 8 requisições/minuto & Limite por usuário, janela fixa de 60 segundos \\
+Rate limit & 8 req/min & Limite por usu\'ario, janela fixa de 60 segundos \\
 Allowlist guilds & \texttt{ALLOWED\_GUILD\_IDS} & Lista CSV de servidores autorizados (vazio = todos) \\
 \rowcolor{tableroweven}
 Allowlist channels & \texttt{ALLOWED\_CHANNEL\_IDS} & Lista CSV de canais autorizados (vazio = todos) \\
-Limite de caracteres & 6.000 & Tamanho máximo da mensagem do usuário \\
+Limite de entrada & 6.000 chars & Tamanho m\'aximo da mensagem do usu\'ario \\
 \rowcolor{tableroweven}
-Limite de tokens & 1.400 & Tokens máximos na resposta do LLM \\
-Trigger por reply & Configurável & Responde apenas a menções ou replies \\
+Limite de sa\'ida & 1.400 tokens & Tokens m\'aximos na resposta do LLM \\
+Trigger por reply & Configur\'avel & Responde apenas a men\c{c}\~oes ou replies \\
 \rowcolor{tableroweven}
-Modo DM & Desativado por padrão & Mensagens diretas habilitadas apenas se configurado \\
-Data collection & \texttt{deny} & OpenRouter configurado para não coletar dados \\
+Modo DM & Desativado & Mensagens diretas habilitadas se configurado \\
+Data collection & \texttt{deny} & OpenRouter n\~ao coleta dados \\
 \rowcolor{tableroweven}
-Pseudonimização & SHA-256 (16 hex) & IDs de usuário, canal e servidor hashados \\
-HTTP method check & Apenas GET & Health server retorna 405 para outros métodos \\
+Pseudonimiza\c{c}\~ao & SHA-256 (16 hex) & IDs hashados \\
+HTTP method & Apenas GET & Health server retorna 405 para outros m\'etodos \\
 \rowcolor{tableroweven}
 Security headers & 5 headers & X-Content-Type-Options, X-Frame-Options, etc. \\
-Escape de RegExp & \texttt{escapeRegExp()} & Previne ReDoS em interpolação de variáveis \\
+Escape RegExp & \texttt{escapeRegExp()} & Previne ReDoS \\
 \bottomrule
 \end{longtable}
 
@@ -600,7 +600,7 @@ Salva a última resposta como solução na base de conhecimento, disponível par
 \begin{quote}
 \small\texttt{/game prompt-engineering}
 \end{quote}
-Inicia um jogo com 10 perguntas sobre Prompt Engineering. Jogadores entram reagindo com 🎮 e respondem clicando nos botões coloridos.
+Inicia um jogo com 10 perguntas sobre Prompt Engineering. Jogadores entram reagindo com o emoji de controller e respondem clicando nos bot\~oes coloridos.
 
 % ============================================================
 % CONSIDERAÇÕES TÉCNICAS
@@ -715,16 +715,16 @@ O bot atribui cargos automaticamente com base em critérios de engajamento:
 \begin{tabularx}{0.7\textwidth}{>{\bfseries}l X}
 \toprule
 \rowcolor{tableheader}
-\color{tableheadertext}\textbf{Cargo} & \color{tableheadertext}\textbf{Critério} \\
+\color{tableheadertext}\textbf{Cargo} & \color{tableheadertext}\textbf{Crit\'erio} \\
 \midrule
 \rowcolor{tableroweven}
-⭐ Estrela do Ranking & \#1 no ranking da guild \\
-🏆 Top 3 & Top 3 no ranking \\
+Estrela do Ranking & \#1 no ranking da guild \\
+Top 3 & Top 3 no ranking \\
 \rowcolor{tableroweven}
-🧠 Gênio & 80\%+ acerto em um jogo \\
-📚 Mentor & 10+ jogos e 5000+ pontos \\
+Genio & 80\%+ acerto em um jogo \\
+Mentor & 10+ jogos e 5000+ pontos \\
 \rowcolor{tableroweven}
-🎯 Dedicado & 10+ jogos jogados \\
+Dedicado & 10+ jogos jogados \\
 \bottomrule
 \end{tabularx}
 \end{center}
