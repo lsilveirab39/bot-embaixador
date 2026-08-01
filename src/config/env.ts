@@ -77,6 +77,12 @@ export const env = {
 
   logLevel: process.env.LOG_LEVEL?.trim() || "info",
   port: integer("PORT", 3000, 1),
+
+  roleEstrela: process.env.ROLE_ESTRELA?.trim() || undefined,
+  roleTop3: process.env.ROLE_TOP3?.trim() || undefined,
+  roleGenio: process.env.ROLE_GENIO?.trim() || undefined,
+  roleMentor: process.env.ROLE_MENTOR?.trim() || undefined,
+  roleDedicado: process.env.ROLE_DEDICADO?.trim() || undefined,
 } as const;
 
 if (env.chunkOverlap >= env.chunkSize) {

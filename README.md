@@ -12,7 +12,9 @@ Projeto Node.js/TypeScript para um bot educacional no Discord com:
 - resposta somente quando o aluno menciona o bot ou responde a uma mensagem dele;
 - slash commands de preferências, perfil, exclusão de dados e registro de soluções;
 - detecção de prompt injection em 3 camadas;
-- pseudonimização de IDs armazenados (SHA-256).
+- pseudonimização de IDs armazenados (SHA-256);
+- **quiz estilo Kahoot com `/game` e ranking por guild com `/ranking`**;
+- **sistema de cargos automáticos por engajamento**.
 
 > O nome "Embaixador" descreve a função educacional. O bot não deve se apresentar como canal oficial da UNIPDS/Anhanguera sem autorização formal.
 
@@ -51,7 +53,8 @@ Permissões mínimas recomendadas para o bot:
 - View Channels;
 - Send Messages;
 - Read Message History;
-- Use Application Commands.
+- Use Application Commands;
+- Manage Roles (para cargos de recompensa).
 
 Não conceda Administrator.
 
@@ -76,7 +79,9 @@ Comandos:
 - `/preferencias`: nível, estilo, linguagem preferida e objetivo;
 - `/perfil`: exibe as preferências;
 - `/esquecer`: apaga preferências e histórico;
-- `/resolver`: salva a última resposta como solução na base de conhecimento.
+- `/resolver`: salva a última resposta como solução na base de conhecimento;
+- `/game <tema>`: inicia um quiz estilo Kahoot (tema aleatório se omitido);
+- `/ranking`: exibe o top 10 de jogadores da guild.
 
 ## 5. Ingestão do RAG
 
@@ -170,6 +175,50 @@ O bot implementa **defesa em profundidade** com múltiplas camadas:
 - logs estruturados com redação automática de tokens e chaves.
 
 Consulte `SECURITY.md`, `SECURITY-REPORT.md` e `docs/ARCHITECTURE.md`.
+
+## 10. Quiz e Ranking
+
+O comando `/game` inicia um quiz estilo Kahoot com:
+
+- **10 perguntas** cobrindo módulos do curso;
+- **4 alternativas** coloridas (🔴🟡🟢🔵);
+- **Timer de 30s** por pergunta (pula se todos responderem);
+- **Pontuação**: 1000 pts (1º), 800 pts (2º), 600 pts (3º), 400 pts (4º+);
+- **Anti-repetição**: perguntas usadas ficam bloqueadas por 7 dias;
+- **Placar ao vivo** entre perguntas (só com 2+ jogadores);
+- **Pódio final** com 🥇🥈🥉 e desempenho por tema.
+
+O comando `/ranking` exibe o top 10 de jogadores da guild com pontos, jogos jogados e taxa de acerto.
+
+### Temas disponíveis
+
+Machine Learning, Deep Learning, Sistemas de Recomendação, Algoritmos de Jogos, LLMs, Prompt Engineering, AI Agents, MCP, Modelos Locais, RAG, LangChain, Classificação de Intenções, Memória e Persistência, Segurança, GraphRAG, Multimodal e Monitoramento.
+
+## 11. Cargos de Recompensa
+
+O bot atribui cargos automaticamente com base em critérios de engajamento:
+
+| Cargo | Critério |
+|-------|----------|
+| ⭐ Estrela do Ranking | #1 no ranking da guild |
+| 🏆 Top 3 | Top 3 no ranking |
+| 🧠 Gênio | 80%+ acerto em um jogo |
+| 📚 Mentor | 10+ jogos e 5000+ pontos |
+| 🎯 Dedicado | 10+ jogos jogados |
+
+### Configuração
+
+Crie os cargos no Discord e adicione os IDs no `.env`:
+
+```env
+ROLE_ESTRELA=id_do_cargo
+ROLE_TOP3=id_do_cargo
+ROLE_GENIO=id_do_cargo
+ROLE_MENTOR=id_do_cargo
+ROLE_DEDICADO=id_do_cargo
+```
+
+A verificação roda ao final de cada jogo e diariamente em horário aleatório.
 
 ---
 

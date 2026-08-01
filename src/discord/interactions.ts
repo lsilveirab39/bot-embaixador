@@ -1,4 +1,5 @@
-import type { ChatInputCommandInteraction } from "discord.js";
+import type { ChatInputCommandInteraction, TextChannel } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { logger } from "../config/logger.js";
 import { compactSolution } from "../rag/compactor.js";
 import { storeSolution } from "../rag/vector-repository.js";
@@ -7,6 +8,9 @@ import { getPreferences, savePreferences } from "../repositories/preferences.js"
 import { getLastAssistantTurn, getLastUserTurn, insertSolution } from "../repositories/solutions.js";
 import type { ExperienceLevel, ResponseStyle } from "../types/domain.js";
 import { getBotStats, getUptime, getUserStats, getBootTime } from "../utils/stats.js";
+import { hasActiveGame, startGame } from "../game/engine.js";
+import { isValidTheme } from "../game/questions.js";
+import { getGuildRanking, getUserHistory } from "../game/ranking.js";
 
 function formatMs(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
@@ -176,5 +180,76 @@ export async function handleInteraction(interaction: ChatInputCommandInteraction
       logger.error({ error }, "Erro ao salvar solução via comando /resolver");
       await interaction.editReply("Erro ao salvar solução. Tente novamente.");
     }
+    return;
+  }
+
+  if (interaction.commandName === "game") {
+    if (!interaction.guildId) {
+      await interaction.reply({ ephemeral: true, content: "Este comando só funciona em servidores!" });
+      return;
+    }
+
+    if (hasActiveGame(interaction.channelId)) {
+      await interaction.reply({ ephemeral: true, content: "Já existe um jogo em andamento neste canal!" });
+      return;
+    }
+
+    const theme = interaction.options.getString("tema");
+
+    if (theme && !isValidTheme(theme)) {
+      await interaction.reply({
+        ephemeral: true,
+        content: "Tema inválido! Use `/game` sem tema para um tema aleatório, ou selecione um tema válido.",
+      });
+      return;
+    }
+
+    await interaction.reply({ ephemeral: true, content: "🎮 Iniciando jogo..." });
+
+    const channel = interaction.channel;
+    if (!channel || !channel.isTextBased() || channel.isDMBased()) {
+      await interaction.editReply("Este comando só funciona em canais de texto de servidores!");
+      return;
+    }
+
+    startGame(channel as TextChannel, interaction.user.id, theme).catch((error) => {
+      logger.error({ error }, "Erro ao executar jogo");
+    });
+    return;
+  }
+
+  if (interaction.commandName === "ranking") {
+    if (!interaction.guildId) {
+      await interaction.reply({ ephemeral: true, content: "Este comando só funciona em servidores!" });
+      return;
+    }
+
+    await interaction.deferReply({ ephemeral: true });
+
+    const ranking = await getGuildRanking(interaction.guildId);
+    const history = await getUserHistory(interaction.user.id, interaction.guildId);
+
+    if (ranking.length === 0) {
+      await interaction.editReply("Nenhum jogo realizado ainda neste servidor!");
+      return;
+    }
+
+    const medals = ["🥇", "🥈", "🥉"];
+    const rankingLines = ranking.map((entry, i) => {
+      const medal = i < 3 ? medals[i] : `${i + 1}º`;
+      const accuracy = entry.totalAnswers > 0
+        ? Math.round((entry.correctAnswers / entry.totalAnswers) * 100)
+        : 0;
+      return `${medal} <@${entry.userId}> — **${entry.totalPoints}** pts (${entry.gamesPlayed} jogos, ${accuracy}% acerto)`;
+    });
+
+    const embed = new EmbedBuilder()
+      .setColor(0xfee75c)
+      .setTitle("🏆 Ranking do Servidor")
+      .setDescription(rankingLines.join("\n"))
+      .setFooter({ text: `Seu melhor score: ${history[0]?.score ?? 0} pts` });
+
+    await interaction.editReply({ embeds: [embed] });
+    return;
   }
 }

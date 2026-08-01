@@ -66,5 +66,34 @@ export const commandDefinitions = [
   new SlashCommandBuilder()
     .setName("resolver")
     .setDescription("Marca a última resposta como solução e salva na base de conhecimento"),
+  new SlashCommandBuilder()
+    .setName("game")
+    .setDescription("Inicia um quiz estilo Kahoot com temas do curso")
+    .addStringOption((option) =>
+      option
+        .setName("tema")
+        .setDescription("Tema do jogo (deixe vazio para aleatório)")
+        .addChoices(
+          { name: "Machine Learning", value: "machine-learning" },
+          { name: "Deep Learning", value: "deep-learning" },
+          { name: "Sistemas de Recomendação", value: "sistemas-de-recomendacao" },
+          { name: "Algoritmos de Jogos", value: "algoritmos-de-jogos" },
+          { name: "LLMs", value: "llms" },
+          { name: "Prompt Engineering", value: "prompt-engineering" },
+          { name: "AI Agents", value: "ai-agents" },
+          { name: "MCP (Model Context Protocol)", value: "mcp" },
+          { name: "Modelos Locais e OpenRouter", value: "modelos-locais" },
+          { name: "RAG", value: "rag" },
+          { name: "LangChain", value: "langchain" },
+          { name: "Classificação de Intenções", value: "classificacao-de-intencoes" },
+          { name: "Memória e Persistência", value: "memoria-e-persistencia" },
+          { name: "Segurança", value: "seguranca" },
+          { name: "GraphRAG com Neo4j", value: "graphrag" },
+          { name: "Multimodal e Monitoramento", value: "multimodal-e-monitoramento" },
+        ),
+    ),
+  new SlashCommandBuilder()
+    .setName("ranking")
+    .setDescription("Mostra o ranking de jogos do servidor"),
 ].map((command) => command.toJSON());
 

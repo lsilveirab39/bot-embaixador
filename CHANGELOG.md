@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.4.0] — 2026-08-01
+
+### Adicionado
+
+- **Comando /game (Kahoot em modo texto)**: quiz competitivo com 10 perguntas, 4 alternativas coloridas, timer de 30s, pontuação por velocidade (1000/800/600/400 pts) e ranking por guild (`src/game/engine.ts`).
+- **Banco de perguntas por módulo**: 39 perguntas cobrindo 16 módulos do curso com 2-3 questões por tema, alternativas embaralhadas a cada jogo (`src/game/questions.ts`).
+- **Anti-repetição de perguntas**: perguntas usadas são salvas no banco `game_asked_questions` e excluídas dos próximos jogos por 7 dias (`src/game/ranking.ts`).
+- **Comando /ranking**: exibe o top 10 de jogadores da guild com pontos, jogos jogados e taxa de acerto (`src/discord/interactions.ts`).
+- **Sistema de cargos de recompensa**: desbloqueio automático de cargos visuais com base em critérios de engajamento (`src/game/roles.ts`):
+  - ⭐ Estrela do Ranking — #1 no ranking da guild
+  - 🏆 Top 3 — Top 3 no ranking
+  - 🧠 Gênio — 80%+ acerto em um jogo
+  - 📚 Mentor — 10+ jogos e 5000+ pontos
+  - 🎯 Dedicado — 10+ jogos jogados
+- **Verificação diária de cargos**: scheduler que roda em horário aleatório entre 10h-21h para atualizar cargos dinâmicos (`src/index.ts`).
+- **Tabelas SQL**: `game_ranking`, `game_history`, `game_asked_questions`, `user_rewards` com índices otimizados.
+
+### Corrigido
+
+- **Countdown poluindo o canal**: reduzido de 5 mensagens (15s, 10s, 5s, 3s, 1s) para 1 única mensagem em 10s.
+- **Perguntas repetindo entre jogos**: implementado cache de perguntas usadas no banco com expiração de 7 dias.
+- **Botões ativos após resposta**: mensagem original agora é editada com botões desabilitados ao revelar resposta.
+- **Respostas duplicadas**: sistema `answeredCurrent` impede que um jogador responda duas vezes na mesma pergunta.
+- **Stats por tema incorretas**: loop de agregação corrigido para incluir todos os jogadores.
+- **Intent GuildMembers**: removida do client (usa REST API direta) para evitar erro `Used disallowed intents`.
+
+### Alterado
+
+- `src/game/engine.ts`: `getQuestions` agora é async, aceita `guildId`, placar condicional (só com 2+ jogadores), countdown pulado quando todos responderam.
+- `src/game/questions.ts`: função `getQuestions` reescrita com filtro anti-repetição e fallback para `ALL_QUESTIONS`.
+- `src/discord/commands.ts`: adicionados comandos `/game` e `/ranking`.
+- `src/discord/interactions.ts`: handlers para `/game` e `/ranking`.
+- `src/discord/client.ts`: listener de reação 🎮 para entrada no jogo, handler de botões de resposta.
+- `src/config/env.ts`: variáveis `ROLE_ESTRELA`, `ROLE_TOP3`, `ROLE_GENIO`, `ROLE_MENTOR`, `ROLE_DEDICADO`.
+- `src/index.ts`: scheduler diário de verificação de cargos.
+
+---
+
 ## [1.3.0] — 2026-07-31
 
 ### Adicionado

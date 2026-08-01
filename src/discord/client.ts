@@ -24,6 +24,7 @@ import { splitDiscordMessage, stripBotMention } from "../utils/discord-text.js";
 import { incrementMessagesReceived, incrementMessagesResponded, recordQuestion, recordResponse } from "../utils/stats.js";
 import { handleInteraction } from "./interactions.js";
 import { shouldRespond } from "./triggers.js";
+import { getActiveGame, handleAnswer } from "../game/engine.js";
 
 const limiter = new FixedWindowRateLimiter(env.userRateLimitPerMinute, 60_000);
 
@@ -96,10 +97,11 @@ export function createDiscordClient(): Client {
     intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.GuildMessageReactions,
       GatewayIntentBits.DirectMessages,
       GatewayIntentBits.MessageContent,
     ],
-    partials: [Partials.Channel, Partials.Message],
+    partials: [Partials.Channel, Partials.Message, Partials.Reaction],
     allowedMentions: { parse: [], repliedUser: false },
   });
 
@@ -110,15 +112,74 @@ export function createDiscordClient(): Client {
     );
   });
 
+  client.on("messageReactionAdd", async (reaction, user) => {
+    if (user.bot) return;
+    if (reaction.emoji.name !== "🎮") return;
+
+    if (reaction.partial) {
+      try {
+        await reaction.fetch();
+      } catch {
+        return;
+      }
+    }
+
+    const message = reaction.message;
+    if (message.partial) {
+      try {
+        await message.fetch();
+      } catch {
+        return;
+      }
+    }
+
+    if (!message.guild) return;
+
+    const session = getActiveGame(message.channelId);
+    if (!session || session.running) return;
+
+    const member = message.guild.members.cache.get(user.id);
+    const displayName = member?.displayName ?? user.globalName ?? user.username ?? "Jogador";
+    session.players.set(user.id, { userId: user.id, displayName, score: 0 });
+
+    if (message.channel.isTextBased() && !message.channel.isDMBased()) {
+      await message.channel.send(`${displayName} entrou no jogo! (${session.players.size} jogador(es))`).catch(() => {});
+    }
+  });
+
   client.on("interactionCreate", async (interaction) => {
-    if (!interaction.isChatInputCommand()) return;
-    try {
-      await handleInteraction(interaction);
-    } catch (error) {
-      logger.error({ error, command: interaction.commandName }, "Erro ao processar slash command");
-      const payload = { ephemeral: true, content: "Ocorreu um erro ao processar o comando." } as const;
-      if (interaction.replied || interaction.deferred) await interaction.followUp(payload);
-      else await interaction.reply(payload);
+    if (interaction.isChatInputCommand()) {
+      try {
+        await handleInteraction(interaction);
+      } catch (error) {
+        logger.error({ error, command: interaction.commandName }, "Erro ao processar slash command");
+        const payload = { ephemeral: true, content: "Ocorreu um erro ao processar o comando." } as const;
+        if (interaction.replied || interaction.deferred) await interaction.followUp(payload);
+        else await interaction.reply(payload);
+      }
+      return;
+    }
+
+    if (interaction.isButton()) {
+      const game = getActiveGame(interaction.channelId);
+      if (!game || !game.running) return;
+
+      const optionIndex = ["game_opt_0", "game_opt_1", "game_opt_2", "game_opt_3"].indexOf(interaction.customId);
+      if (optionIndex === -1) return;
+
+      const member = interaction.guild?.members.cache.get(interaction.user.id);
+      const displayName = member?.displayName ?? interaction.user.globalName ?? interaction.user.username ?? "Jogador";
+
+      const result = await handleAnswer(game, interaction.user.id, displayName, optionIndex);
+
+      const messages: Record<string, string> = {
+        correct: "✅ Você acertou! +1000 pts",
+        wrong: "❌ Você errou!",
+        already_answered: "⏳ Você já respondeu esta pergunta!",
+        game_not_running: "⚠️ O jogo já acabou.",
+      };
+
+      await interaction.reply({ ephemeral: true, content: messages[result] ?? "..." });
     }
   });
 
