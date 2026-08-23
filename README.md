@@ -66,6 +66,12 @@ npm install
 npm run db:init
 ```
 
+O `db:init` aplica, em ordem, todas as migrações de schema de `sql/` (`001` a `006`, exceto a `003`) e é seguro reexecutar (`CREATE ... IF NOT EXISTS`). A exceção `sql/003_hash_existing_ids.sql` é uma migração de dados one-time para bases antigas (re-hasheia IDs já gravados) — só a aplique manualmente em bancos criados antes da pseudonimização:
+
+```bash
+npm run db:migrate
+```
+
 ## 4. Registrar slash commands
 
 Durante desenvolvimento, defina `DISCORD_GUILD_ID` para propagação imediata:

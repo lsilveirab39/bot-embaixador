@@ -18,7 +18,7 @@ Instruções para agentes de código neste repositório (bot Discord educacional
 
 ## Banco de dados
 
-- `npm run db:init` aplica **apenas** `sql/001_init.sql`. As migrações `002_solutions.sql`, `004_game_tables.sql`, `005_game_asked_questions.sql` e `006_user_rewards.sql` não são aplicadas automaticamente (nem pelo mount de initdb do docker-compose). Aplique-as manualmente: `npx tsx scripts/run-migration.ts sql/<arquivo>.sql`. Sem elas, `/game`, `/ranking` e `/resolver` falham.
+- `npm run db:init` aplica todas as migrações de **schema** de `sql/` em ordem (001, 002, 004–006; todas idempotentes). `003_hash_existing_ids.sql` é migração de **dados** one-time e fica fora da automação de propósito — reaplicá-la re-hashearia IDs já pseudonimizados. Para bases antigas: `npm run db:migrate` ou `npx tsx scripts/run-migration.ts sql/<arquivo>.sql`.
 - `npm run db:migrate` está hardcoded para `003_hash_existing_ids.sql`; para outros arquivos use o runner diretamente.
 - IDs do Discord nunca são gravados crus: toda persistência passa pela pseudonimização SHA-256 truncada a 16 hex (`src/utils/crypto.ts`) na camada de repositórios.
 

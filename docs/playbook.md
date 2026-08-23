@@ -76,7 +76,7 @@ docker compose up -d postgres
 # 4. Instalar dependências
 npm install
 
-# 5. Inicializar o banco
+# 5. Inicializar o banco (aplica todas as migrações de schema)
 npm run db:init
 
 # 6. Registrar slash commands no Discord
@@ -722,9 +722,12 @@ Resposta inclui código de exemplo, explicação passo a passo e referências ao
 │   ├── ingest.ts             # Ingestão de conhecimento no pgvector
 │   └── run-migration.ts      # Runner reutilizável de migrações SQL
 ├── sql/
-│   ├── 001_init.sql          # Schema do banco (tabelas + extensão vector)
+│   ├── 001_init.sql          # Schema base (tabelas + extensão vector)
 │   ├── 002_solutions.sql     # Tabela de feedback de soluções
-│   └── 003_hash_existing_ids.sql  # Migração de pseudonimização de IDs
+│   ├── 003_hash_existing_ids.sql  # Migração one-time de pseudonimização (manual)
+│   ├── 004_game_tables.sql   # Tabelas do quiz (ranking + histórico)
+│   ├── 005_game_asked_questions.sql  # Anti-repetição de perguntas
+│   └── 006_user_rewards.sql  # Cargos de recompensa
 ├── src/
 │   ├── index.ts              # Entry point
 │   ├── ai/
