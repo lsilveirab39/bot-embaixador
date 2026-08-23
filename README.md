@@ -91,7 +91,7 @@ Comandos:
 
 ## 5. Ingestão do RAG
 
-O loader suporta `.md`, `.txt`, `.json`, `.csv`, `.html` e `.htm`. Converta PDFs autorizados para texto ou Markdown antes da ingestão.
+Os materiais de estudo **não são incluídos no repositório** — coloque o seu conteúdo autorizado em `knowledge/<namespace>/` (ex.: `course/`, `ai/`, `programming/`). O loader suporta `.md`, `.txt`, `.json`, `.csv`, `.html` e `.htm`. Converta PDFs autorizados para texto ou Markdown antes da ingestão.
 
 ```bash
 npm run ingest -- --namespace course --path ./knowledge/course

@@ -463,9 +463,11 @@ Cada execução **substitui** os chunks anteriores da mesma fonte + namespace.
 
 ### Namespaces
 
+Os materiais **não são versionados no repositório** — coloque seus próprios arquivos autorizados em `knowledge/<namespace>/`:
+
 | Namespace | Conteúdo | Exemplo |
 |-----------|----------|---------|
-| `course` | Conteúdo do curso (READMEs, transcrições) | `./knowledge/course/` |
+| `course` | Conteúdo de estudo (READMEs, transcrições) | `./knowledge/course/` |
 | `programming` | Tutoriais de programação (.rag.md) | `./knowledge/programming/` |
 | `ai` | Conceitos gerais de IA | `./knowledge/ai/` |
 | `solutions` | Soluções salvas por alunos (auto-populado) | — |
@@ -712,10 +714,8 @@ Resposta inclui código de exemplo, explicação passo a passo e referências ao
 ├── docs/
 │   ├── ARCHITECTURE.md      # Diagramas e fluxo da arquitetura
 │   └── playbook.md           # Este documento
-├── knowledge/                # Base de conhecimento para ingestão
-│   ├── course/               # Conteúdo do curso (READMEs, transcrições)
-│   ├── programming/          # Tutoriais de programação (.rag.md)
-│   └── ai/                   # Conceitos gerais de IA
+├── knowledge/                # Base de conhecimento para ingestão (não versionada)
+│   └── README.md             # Como organizar seus materiais
 ├── scripts/
 │   ├── init-db.ts            # Inicialização do banco SQL
 │   ├── register-commands.ts  # Registro de slash commands
